@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The City Magazine — Earthland</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --parchment:#F2E8D5;
+  --parchment-dark:#E8D9B8;
+  --parchment-deep:#D9C89A;
+  --ink:#1A1208;
+  --ink-light:#3D2E10;
+  --sepia:#8B6914;
+  --sepia-light:#B8901E;
+  --mist:#C4B89A;
+  --forest:#2D4A2D;
+  --cream:#FAF4E6;
+}
+html,body{height:100%;overflow:hidden}
+body{background:#060c05;font-family:'EB Garamond',Georgia,serif;color:var(--parchment)}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+.view{display:none;position:fixed;inset:0;z-index:1}
+.view.active{display:block}
+
+/* ============================================================
+   COVER — TREEHOUSE PORTAL
+   ============================================================ */
+#view-cover{overflow:hidden;background:#060c05}
+
+.forest-scene{position:absolute;inset:0;width:100%;height:100%}
+
+/* sky gradient — transparent now, city SVG handles it */
+.forest-sky{
+  position:absolute;inset:0;
+  background:#05080f;
+}
+
+/* CITY SKY SVG */
+.city-sky-svg{
+  position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;
+}
+
+/* central light shaft from above */
+.light-shaft{
+  position:absolute;
+  top:0;left:50%;transform:translateX(-50%);
+  width:600px;height:85%;
+  background:radial-gradient(ellipse at 50% 0%,rgba(190,220,130,0.10) 0%,rgba(150,190,90,0.06) 35%,transparent 75%);
+  pointer-events:none;
+}
+.light-shaft-2{
+  position:absolute;
+  top:0;left:34%;
+  width:280px;height:60%;
+  background:radial-gradient(ellipse at 50% 0%,rgba(160,200,100,0.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+/* TREES — left cluster */
+.tree{position:absolute;bottom:0;pointer-events:none}
+
+/* foliage blobs via SVG embedded */
+.trees-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* ground mist */
+.ground-mist{
+  position:absolute;bottom:0;left:0;right:0;height:35vh;
+  background:linear-gradient(to top,rgba(4,9,3,0.99) 0%,rgba(6,14,4,0.88) 25%,rgba(8,18,5,0.45) 55%,transparent 100%);
+  pointer-events:none;z-index:2;
+}
+.ground-mist-2{
+  position:absolute;bottom:0;left:0;right:0;height:200px;
+  background:radial-gradient(ellipse 90% 60% at 50% 100%,rgba(20,50,15,0.14) 0%,transparent 70%);
+  pointer-events:none;z-index:2;
+}
+
+/* TREEHOUSE */
+.treehouse{
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(480px, 52vw);
+  z-index:5;
+  user-select:none;
+}
+
+/* main trunk support */
+.trunk-l,.trunk-r{
+  position:absolute;
+  bottom:-90px;
+  width:28px;
+  background:linear-gradient(to right,#1a0e06,#2e1e0a,#1a0e06);
+  border-radius:4px;
+  z-index:1;
+}
+.trunk-l{left:40px;height:140px}
+.trunk-r{right:40px;height:160px}
+
+/* platform deck */
+.platform{
+  position:relative;
+  width:100%;
+  height:clamp(22px, 2.2vw, 38px);
+  margin:0 auto;
+  background:linear-gradient(to bottom,#5a3e1e,#3a2810,#2a1c08);
+  border-radius:3px 3px 0 0;
+  border-top:3px solid #6a4e28;
+  z-index:3;
+}
+.platform::before{
+  content:'';position:absolute;
+  left:-3%;right:-3%;top:0;height:100%;
+  background:linear-gradient(to bottom,#4e3418,#3a2510);
+  border-radius:3px;
+  z-index:-1;
+}
+/* platform planks */
+.platform-planks{
+  position:absolute;top:3px;left:4px;right:4px;bottom:3px;
+  display:flex;gap:3px;overflow:hidden;border-radius:1px;
+}
+.p-plank{flex:1;background:linear-gradient(to bottom,#5e4228,#3e2a12);border-right:1px solid #2a1a08}
+
+/* railing */
+.railing{
+  position:absolute;top:-clamp(40px,5vw,80px);left:-3%;right:-3%;height:clamp(40px,5vw,80px);
+  border-top:4px solid #5a3e1e;
+  display:flex;justify-content:space-between;
+  padding:0 6px;
+  z-index:4;
+}
+.rail-post{width:4px;height:100%;background:#4a3418;margin-top:-4px}
+
+/* walls */
+.walls{
+  width:90%;
+  height:clamp(200px, 26vw, 420px);
+  margin:0 auto;
+  background:linear-gradient(160deg,#3e2c14 0%,#2e1e0a 50%,#261808 100%);
+  border:2px solid #4a3418;
+  border-bottom:none;
+  position:relative;
+  z-index:3;
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(20px, 5vw, 80px);
+}
+/* wood grain texture lines */
+.walls::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(0,0,0,0.07) 28px,rgba(0,0,0,0.07) 30px);
+  pointer-events:none;
+}
+
+/* windows */
+.window{
+  width:clamp(60px,8vw,130px);height:clamp(60px,8vw,130px);
+  border:3px solid #6a4e28;
+  background:rgba(180,150,70,0.08);
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:3px;padding:6px;
+  position:relative;
+  box-shadow:0 0 20px rgba(180,150,60,0.12),inset 0 0 12px rgba(0,0,0,0.3);
+}
+.w-pane{background:rgba(170,140,65,0.1);border-radius:1px}
+.window.lit .w-pane{background:rgba(210,175,80,0.2)}
+.window.lit{box-shadow:0 0 30px rgba(200,165,70,0.3),inset 0 0 14px rgba(0,0,0,0.2)}
+
+/* THE DOOR — portal */
+.door-wrap{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+}
+.door{
+  width:clamp(70px,9vw,145px);height:clamp(105px,13.5vw,218px);
+  background:linear-gradient(to bottom,#2a1a08 0%,#1a0e04 100%);
+  border:3px solid #9a7a3a;
+  border-radius:6px 6px 0 0;
+  position:relative;
+  cursor:pointer;
+  overflow:visible;
+  transition:all 0.3s ease;
+  box-shadow:
+    0 0 18px 6px rgba(220,175,70,0.45),
+    0 0 50px 18px rgba(190,145,45,0.22),
+    0 0 90px 35px rgba(160,120,30,0.10);
+  animation:door-pulse 2.8s ease-in-out infinite alternate;
+}
+@keyframes door-pulse{
+  0%{
+    box-shadow:0 0 14px 5px rgba(220,175,70,0.40),0 0 40px 15px rgba(190,145,45,0.18),0 0 80px 30px rgba(160,120,30,0.09);
+    border-color:#9a7a3a;
+  }
+  100%{
+    box-shadow:0 0 28px 10px rgba(240,200,90,0.60),0 0 70px 28px rgba(210,165,60,0.30),0 0 120px 50px rgba(180,140,40,0.14);
+    border-color:#c0a050;
+  }
+}
+.door-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 55%,rgba(240,210,120,0.55) 0%,rgba(205,165,75,0.35) 40%,rgba(160,120,40,0.12) 70%,transparent 100%);
+  opacity:1;
+  animation:glow-breathe 2.8s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes glow-breathe{
+  0%{opacity:0.7}
+  100%{opacity:1}
+}
+/* warm spill light onto platform below the door */
+.door-wrap::after{
+  content:'';
+  position:absolute;
+  bottom:-30px;left:50%;transform:translateX(-50%);
+  width:200px;height:35px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(220,180,70,0.30) 0%,transparent 70%);
+  pointer-events:none;
+}
+.door-panel-top{
+  position:absolute;top:10%;left:10%;right:10%;height:33%;
+  border:2px solid #6a5028;border-radius:3px 3px 0 0;
+}
+.door-panel-bot{
+  position:absolute;top:50%;left:10%;right:10%;bottom:8%;
+  border:2px solid #6a5028;border-radius:0 0 3px 3px;
+}
+.door-knob{
+  position:absolute;right:12%;top:50%;transform:translateY(-50%);
+  width:clamp(6px,0.8vw,12px);height:clamp(6px,0.8vw,12px);border-radius:50%;
+  background:#c09040;
+  box-shadow:0 0 6px rgba(220,180,80,0.8),0 0 12px rgba(200,160,60,0.4);
+  animation:knob-glow 2.8s ease-in-out infinite alternate;
+}
+@keyframes knob-glow{
+  0%{box-shadow:0 0 4px rgba(220,180,80,0.7),0 0 8px rgba(200,160,60,0.3)}
+  100%{box-shadow:0 0 8px rgba(240,200,100,1),0 0 18px rgba(220,180,80,0.6)}
+}
+.door:hover{
+  box-shadow:
+    0 0 35px 14px rgba(240,200,90,0.70),
+    0 0 80px 35px rgba(210,165,55,0.38),
+    0 0 140px 60px rgba(180,140,35,0.18);
+  border-color:#d4b060;
+  animation:none;
+}
+
+/* door open state */
+.door.open{
+  transform-origin:left center;
+  animation:door-open 0.9s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes door-open{
+  0%{transform:perspective(600px) rotateY(0deg)}
+  100%{transform:perspective(600px) rotateY(-75deg)}
+}
+.door-light{
+  position:absolute;
+  top:0;left:0;
+  width:clamp(70px,9vw,145px);height:clamp(105px,13.5vw,218px);
+  border-radius:6px 6px 0 0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(230,200,120,0.95) 0%,rgba(200,165,80,0.7) 40%,rgba(160,120,40,0.2) 80%,transparent 100%);
+  opacity:0;
+  pointer-events:none;
+  z-index:10;
+  transition:opacity 0.3s ease;
+}
+.door-light.show{opacity:1;animation:light-pulse 2s ease-in-out infinite alternate}
+@keyframes light-pulse{0%{opacity:0.85}100%{opacity:1}}
+
+/* door step */
+.door-step{
+  width:clamp(80px,11vw,175px);height:clamp(9px,1.1vw,18px);
+  background:linear-gradient(to bottom,#5a3e1e,#3a2510);
+  border-radius:0 0 3px 3px;
+  border:2px solid #4a3018;border-top:none;
+}
+
+/* ROOF — SVG-based, always congruent with wall width */
+.roof-wrap{
+  position:relative;
+  width:100%;
+  z-index:4;
+}
+.roof-svg{
+  width:108%;
+  margin-left:-4%;
+  display:block;
+  overflow:visible;
+  filter:drop-shadow(0 -3px 14px rgba(0,0,0,0.75));
+}
+
+/* chimney */
+.chimney{
+  position:absolute;
+  top:clamp(-50px,-6vw,-30px);right:clamp(80px,12vw,200px);
+  width:clamp(26px,3.2vw,52px);height:clamp(48px,6vw,96px);
+  background:linear-gradient(to right,#2e1e0a,#3e2a10,#2e1e0a);
+  border:2px solid #4a3418;
+  z-index:3;
+}
+.chimney::after{
+  content:'';
+  position:absolute;bottom:100%;left:-4px;right:-4px;
+  height:8px;
+  background:#2a1808;
+  border:1px solid #3a2810;
+}
+
+/* smoke puffs */
+.smoke{
+  position:absolute;
+  border-radius:50%;
+  background:rgba(80,70,55,0.15);
+  pointer-events:none;
+  animation:rise 4s ease-out infinite;
+}
+@keyframes rise{
+  0%{opacity:0;transform:translateY(0) scale(0.3)}
+  20%{opacity:0.6}
+  80%{opacity:0.2}
+  100%{opacity:0;transform:translateY(-60px) scale(1.8)}
+}
+
+/* SIGN — hangs on left side of building */
+.roof-sign{
+  position:absolute;
+  left:6%;
+  bottom:clamp(-54px,-6.5vw,-34px);
+  z-index:10;
+  pointer-events:none;
+}
+.sign-rope-l,.sign-rope-r{
+  position:absolute;
+  top:0;width:1px;background:rgba(160,120,60,0.7);
+  height:clamp(8px,1vw,14px);
+  transform:translateY(-100%);
+}
+.sign-rope-l{left:22%}
+.sign-rope-r{left:68%}
+.roof-sign-text{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(9px,1.2vw,18px);
+  font-weight:400;
+  font-style:italic;
+  color:rgba(240,220,160,0.95);
+  letter-spacing:0.09em;
+  white-space:nowrap;
+  background:linear-gradient(to bottom,#3a2810,#251806);
+  border:1px solid #6a4e28;
+  border-radius:2px;
+  padding:clamp(2px,0.35vw,5px) clamp(7px,1vw,16px);
+  text-shadow:0 0 14px rgba(220,190,80,0.7),0 1px 3px rgba(0,0,0,0.9);
+  box-shadow:0 2px 8px rgba(0,0,0,0.5),0 0 12px rgba(200,165,60,0.12);
+  animation:sign-glow 3s ease-in-out infinite alternate;
+}
+@keyframes sign-glow{
+  0%{text-shadow:0 0 12px rgba(220,190,80,0.6),0 1px 3px rgba(0,0,0,0.9)}
+  100%{text-shadow:0 0 22px rgba(240,210,100,0.9),0 0 44px rgba(220,185,60,0.4),0 1px 3px rgba(0,0,0,0.9)}
+}
+
+/* BRIDGE */
+.bridge-wrap{
+  position:absolute;
+  bottom:0;left:50%;transform:translateX(-50%);
+  width:200px;
+  z-index:4;
+  pointer-events:none;
+}
+.bridge-svg{width:100%;height:auto}
+
+/* ROPE LINES left/right */
+.rope-anchor{
+  position:absolute;
+  z-index:4;
+  pointer-events:none;
+}
+
+/* TEXT OVERLAY */
+.cover-title{
+  position:absolute;
+  top:3vh;left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+  z-index:10;
+  pointer-events:none;
+  width:360px;
+}
+.cover-eyebrow{
+  font-family:'EB Garamond',serif;
+  font-size:11px;letter-spacing:0.25em;text-transform:uppercase;
+  color:rgba(180,160,100,0.55);margin-bottom:0.6rem;
+}
+.cover-mag{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(28px,3.5vw,52px);font-weight:300;font-style:italic;
+  color:rgba(230,215,170,0.88);
+  line-height:1.05;
+  text-shadow:0 2px 40px rgba(150,120,40,0.35);
+}
+.cover-sub{
+  font-family:'EB Garamond',serif;
+  font-size:14px;font-style:italic;
+  color:rgba(160,140,90,0.55);
+  margin-top:0.6rem;letter-spacing:0.05em;
+}
+
+/* enter prompt near door */
+.door-prompt{
+  position:absolute;
+  z-index:10;
+  left:50%;
+  transform:translateX(-50%);
+  font-family:'EB Garamond',serif;
+  font-size:12px;letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:rgba(200,175,100,0.5);
+  text-align:center;
+  pointer-events:none;
+  transition:opacity 0.3s;
+  white-space:nowrap;
+}
+
+/* PAGE TURN TRANSITION */
+.portal-flash{
+  position:fixed;inset:0;
+  pointer-events:none;
+  z-index:999;
+  perspective:1400px;
+  display:none;
+}
+.portal-flash.go{display:block;pointer-events:all}
+
+.page-turn-leaf{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:var(--cream);
+  transform-origin:left center;
+  transform:rotateY(90deg);
+  backface-visibility:hidden;
+  box-shadow:-8px 0 40px rgba(0,0,0,0.25);
+  animation:page-turn-in 0.85s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes page-turn-in{
+  0%{transform:rotateY(90deg);opacity:0.7}
+  40%{opacity:1}
+  100%{transform:rotateY(0deg)}
+}
+.page-turn-leaf::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(242,232,213,1) 0%,rgba(232,217,184,1) 100%);
+}
+.page-turn-leaf::after{
+  content:'';
+  position:absolute;top:0;left:0;width:60px;height:100%;
+  background:linear-gradient(to right,rgba(100,70,20,0.18) 0%,transparent 100%);
+  pointer-events:none;
+}
+
+/* FIREFLIES */
+.firefly{
+  position:absolute;
+  width:3px;height:3px;border-radius:50%;
+  background:rgba(210,230,130,0.9);
+  animation:ff linear infinite;
+  pointer-events:none;
+  z-index:3;
+}
+@keyframes ff{
+  0%{opacity:0;transform:translate(0,0)}
+  15%{opacity:0.9}
+  85%{opacity:0.6}
+  100%{opacity:0;transform:translate(var(--fdx),var(--fdy))}
+}
+
+/* ============================================================
+   INNER SITE (after door opens)
+   ============================================================ */
+#view-inner{
+  background:var(--parchment);
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+
+nav{
+  background:var(--ink);
+  padding:0 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  height:50px;position:sticky;top:0;z-index:100;
+}
+.nav-title{
+  font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;
+  color:var(--parchment);letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;
+}
+.nav-links{display:flex;gap:1.5rem;list-style:none;align-items:center}
+.nav-links a{
+  color:var(--mist);text-decoration:none;font-family:'EB Garamond',serif;
+  font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:color 0.2s;
+}
+.nav-links a:hover,.nav-links a.active{color:var(--parchment)}
+.nav-save{font-size:11px;color:var(--mist);font-style:italic;font-family:'EB Garamond',serif;opacity:0;transition:opacity 0.3s}
+.nav-save.on{opacity:1}
+
+/* sub views */
+.sub-view{display:none}
+.sub-view.active{display:block}
+
+/* ---- ARCHIVE ---- */
+.archive-header{
+  border-bottom:1px solid var(--parchment-deep);
+  padding:2.5rem 3rem 1.5rem;background:var(--cream);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.archive-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:400;font-style:italic;color:var(--ink)}
+.btn-sm{
+  background:transparent;border:1px solid var(--sepia);color:var(--sepia);
+  font-family:'EB Garamond',serif;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.45rem 1.1rem;cursor:pointer;transition:all 0.2s;
+}
+.btn-sm:hover{background:var(--sepia);color:var(--ink)}
+.serials-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.75rem;padding:2.5rem 3rem}
+.serial-card{cursor:pointer;transition:transform 0.2s}
+.serial-card:hover{transform:translateY(-3px)}
+.s-cover{
+  width:100%;aspect-ratio:3/4;margin-bottom:0.75rem;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:1.25rem;border:1.5px solid rgba(255,255,255,0.08);
+  position:relative;
+}
+.s-cover h3{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;font-style:italic;text-align:center;line-height:1.2;color:var(--parchment)}
+.s-cover p{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-top:0.5rem;color:var(--sepia-light);text-align:center}
+.s-meta h4{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:var(--ink);margin-bottom:0.2rem}
+.s-meta p{font-size:12px;color:var(--sepia);font-style:italic}
+.s-badge{display:inline-block;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;border:1px solid var(--forest);color:var(--forest);margin-top:0.4rem;font-family:'EB Garamond',serif}
+.add-card .s-cover{border:2px dashed var(--mist);background:transparent;flex-direction:column;gap:0.4rem}
+.add-card .s-cover span{font-size:26px;color:var(--mist)}
+.add-card .s-meta h4{color:var(--mist)}
+
+/* delete button on serial cover */
+.s-delete{
+  position:absolute;top:6px;right:6px;
+  width:20px;height:20px;
+  background:rgba(26,18,8,0.55);
+  border:1px solid rgba(180,140,60,0.3);
+  border-radius:50%;
+  color:rgba(200,175,120,0.7);
+  font-size:14px;line-height:1;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;
+  transition:opacity 0.15s,background 0.15s,color 0.15s;
+  padding:0;
+}
+.s-delete:hover{background:rgba(120,30,20,0.75);border-color:rgba(220,80,60,0.5);color:#fff}
+.serial-card:hover .s-delete{opacity:1}
+
+/* chapter panel */
+.ch-panel{background:var(--cream);border-top:1px solid var(--parchment-deep);padding:2rem 3rem 3rem;display:none}
+.ch-panel.open{display:block}
+.ch-panel-head{
+  font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--ink-light);
+  margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;
+}
+.ch-row{
+  display:flex;align-items:center;gap:1rem;padding:0.6rem 0;
+  border-bottom:1px solid var(--parchment);cursor:pointer;transition:padding-left 0.12s;
+}
+.ch-row:hover{padding-left:0.5rem;background:rgba(139,105,20,0.04)}
+.ch-num{font-size:11px;color:var(--mist);font-family:'EB Garamond',serif;letter-spacing:0.1em;min-width:28px}
+.ch-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink);flex:1}
+.ch-wc{font-size:11px;color:var(--mist);font-family:'EB Garamond',serif}
+.ch-arr{color:var(--sepia);font-size:13px;opacity:0}
+.ch-row:hover .ch-arr{opacity:1}
+
+/* ---- WRITER ---- */
+.writer-bar{
+  background:var(--parchment-dark);border-bottom:1px solid var(--parchment-deep);
+  padding:0 2rem;height:44px;display:flex;align-items:center;gap:1.5rem;
+}
+.w-back{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--sepia);cursor:pointer;font-family:'EB Garamond',serif;background:none;border:none;padding:0}
+.w-back:hover{color:var(--ink)}
+.w-div{width:1px;height:20px;background:var(--parchment-deep)}
+.w-label{font-family:'EB Garamond',serif;font-size:13px;color:var(--ink-light);font-style:italic;flex:1}
+.w-wc{font-size:11px;color:var(--mist);font-family:'EB Garamond',serif}
+.w-modes{display:flex;gap:0.5rem}
+.w-mode{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mist);border:1px solid transparent;background:none;padding:3px 10px;cursor:pointer;font-family:'EB Garamond',serif;transition:all 0.15s}
+.w-mode.active{border-color:var(--sepia);color:var(--sepia)}
+.w-mode:hover{color:var(--ink)}
+.w-title-area{max-width:700px;margin:2.5rem auto 0;padding:0 2rem}
+.w-ch-num{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mist);font-family:'EB Garamond',serif;margin-bottom:0.5rem;text-align:center}
+.w-title-in{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,40px);
+  font-weight:400;font-style:italic;color:var(--ink);background:transparent;
+  border:none;border-bottom:1px solid transparent;width:100%;text-align:center;
+  outline:none;padding:0.25rem 0;transition:border-color 0.2s;line-height:1.2;
+}
+.w-title-in:focus{border-bottom-color:var(--parchment-deep)}
+.w-title-in::placeholder{color:var(--mist)}
+.w-rule{display:flex;align-items:center;gap:1rem;margin:1.5rem auto;max-width:700px;padding:0 2rem}
+.w-rule::before,.w-rule::after{content:'';flex:1;height:1px;background:var(--parchment-deep)}
+.w-orn{color:var(--sepia);font-size:15px}
+.w-prose-wrap{max-width:700px;margin:0 auto;padding:0 2rem 6rem}
+.w-prose{
+  font-family:'EB Garamond',serif;font-size:20px;line-height:1.9;color:var(--ink);
+  background:transparent;border:none;outline:none;width:100%;min-height:60vh;
+  resize:none;caret-color:var(--sepia);
+}
+.w-prose::placeholder{color:var(--mist);font-style:italic}
+
+/* notes */
+.notes-wrap{max-width:700px;margin:0 auto;padding:1.5rem 2rem 6rem;display:none}
+.notes-wrap.show{display:block}
+.n-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--mist);font-family:'EB Garamond',serif;margin-bottom:0.6rem}
+.n-in{
+  font-family:'EB Garamond',serif;font-size:17px;line-height:1.8;color:var(--ink-light);
+  background:transparent;border:none;border-left:2px solid var(--parchment-deep);
+  padding-left:1rem;outline:none;width:100%;min-height:40vh;resize:none;
+}
+.n-in::placeholder{color:var(--mist);font-style:italic}
+
+/* read mode */
+#read-mode{display:none;background:var(--cream);min-height:calc(100vh - 94px)}
+.r-wrap{max-width:660px;margin:0 auto;padding:3.5rem 2rem 6rem}
+.r-label{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mist);text-align:center;margin-bottom:0.75rem;font-family:'EB Garamond',serif}
+.r-title{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,42px);font-weight:400;font-style:italic;color:var(--ink);text-align:center;line-height:1.15;margin-bottom:0.4rem}
+.r-by{text-align:center;font-size:13px;color:var(--sepia);font-style:italic;margin-bottom:2.5rem}
+.r-rule{display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem}
+.r-rule::before,.r-rule::after{content:'';flex:1;height:1px;background:var(--parchment-deep)}
+.r-orn{color:var(--sepia);font-size:16px}
+.r-body{font-family:'EB Garamond',serif;font-size:20px;line-height:1.9;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.r-empty{font-size:15px;color:var(--mist);font-style:italic;text-align:center;padding:3rem 0}
+
+/* ---- CHARACTER ---- */
+.char-header{
+  background:var(--ink);
+  padding:2.5rem 3rem 2rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.char-identity{display:flex;align-items:center;gap:1.5rem}
+.char-avatar{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,var(--sepia) 0%,var(--ink-light) 100%);
+  border:2px solid var(--sepia-light);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;
+  color:var(--parchment);
+  flex-shrink:0;
+}
+.char-name{
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;font-style:italic;
+  color:var(--parchment);line-height:1.1;
+}
+.char-handle{
+  font-family:'EB Garamond',serif;font-size:13px;
+  color:var(--mist);letter-spacing:0.06em;margin-top:0.2rem;
+}
+
+.char-body{padding:2.5rem 3rem 5rem;max-width:900px}
+
+.char-section{margin-bottom:2.75rem}
+.char-section-label{
+  font-family:'EB Garamond',serif;font-size:11px;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--mist);margin-bottom:1rem;
+  border-bottom:1px solid var(--parchment-deep);padding-bottom:0.4rem;
+}
+
+/* stats */
+.char-stats-row{display:flex;gap:1.25rem;flex-wrap:wrap}
+.char-stat{
+  background:var(--cream);border:1px solid var(--parchment-deep);
+  padding:1rem 1.5rem;min-width:120px;text-align:center;
+}
+.char-stat-val{
+  font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;
+  color:var(--ink);line-height:1;
+}
+.char-stat-key{
+  font-family:'EB Garamond',serif;font-size:11px;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--mist);margin-top:0.3rem;
+}
+
+/* library */
+.char-library{display:flex;flex-direction:column;gap:0.5rem}
+.char-lib-row{
+  display:flex;align-items:center;gap:1rem;
+  padding:0.65rem 0;border-bottom:1px solid var(--parchment);
+  cursor:pointer;transition:padding-left 0.12s;
+}
+.char-lib-row:hover{padding-left:0.4rem}
+.char-lib-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.char-lib-title{
+  font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink);flex:1;
+}
+.char-lib-meta{
+  font-family:'EB Garamond',serif;font-size:12px;color:var(--mist);
+}
+.char-lib-empty{
+  font-family:'EB Garamond',serif;font-size:15px;color:var(--mist);
+  font-style:italic;padding:0.5rem 0;
+}
+
+/* achievements */
+.char-achievements{display:flex;flex-wrap:wrap;gap:0.75rem}
+.char-ach{
+  display:flex;align-items:center;gap:0.6rem;
+  background:var(--cream);border:1px solid var(--parchment-deep);
+  padding:0.55rem 0.9rem;
+  opacity:0.45;
+}
+.char-ach.earned{opacity:1;border-color:var(--sepia-light)}
+.char-ach-icon{font-size:16px;line-height:1}
+.char-ach-label{
+  font-family:'EB Garamond',serif;font-size:13px;color:var(--ink-light);
+  letter-spacing:0.04em;
+}
+
+/* ROOF SIGN — The City Magazine */
+.roof-sign{
+  position:absolute;
+  bottom:clamp(-18px,-2.2vw,-8px);
+  left:50%;transform:translateX(-50%);
+  z-index:10;
+  text-align:center;
+  pointer-events:none;
+  white-space:nowrap;
+}
+.roof-sign-text{
+  display:inline-block;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(13px,1.8vw,28px);
+  font-weight:400;
+  font-style:italic;
+  color:rgba(240,220,160,0.95);
+  letter-spacing:0.12em;
+  text-shadow:
+    0 0 20px rgba(220,190,80,0.8),
+    0 0 50px rgba(200,165,50,0.4),
+    0 2px 4px rgba(0,0,0,0.9);
+  animation:sign-glow 3s ease-in-out infinite alternate;
+}
+@keyframes sign-glow{
+  0%{text-shadow:0 0 16px rgba(220,190,80,0.7),0 0 40px rgba(200,165,50,0.3),0 2px 4px rgba(0,0,0,0.9)}
+  100%{text-shadow:0 0 28px rgba(240,210,100,0.95),0 0 70px rgba(220,185,60,0.55),0 2px 4px rgba(0,0,0,0.9)}
+}
+
+/* DOOR SIGN — Come on in! */
+.door-sign{
+  margin-top:clamp(6px,0.8vw,14px);
+  text-align:center;
+  pointer-events:none;
+  position:relative;
+}
+.door-sign-text{
+  display:inline-block;
+  font-family:'EB Garamond',serif;
+  font-size:clamp(9px,1.1vw,17px);
+  font-style:italic;
+  color:rgba(210,185,110,0.9);
+  letter-spacing:0.08em;
+  background:linear-gradient(to bottom,#3a2810,#281a06);
+  border:1px solid #6a4e28;
+  border-radius:2px;
+  padding:clamp(2px,0.3vw,5px) clamp(6px,0.9vw,14px);
+  box-shadow:0 2px 8px rgba(0,0,0,0.6),0 0 14px rgba(200,165,60,0.2);
+}
+.door-sign::before,.door-sign::after{
+  content:'';
+  position:absolute;
+  top:clamp(-8px,-0.9vw,-4px);
+  width:1px;
+  height:clamp(6px,0.8vw,12px);
+  background:rgba(160,120,60,0.7);
+}
+.door-sign::before{left:28%}
+.door-sign::after{right:28%}
+
+.modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(26,18,8,0.72);
+  z-index:200;align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex}
+.modal{background:var(--cream);border:1px solid var(--parchment-deep);padding:2.5rem;width:min(460px,90vw);position:relative}
+.modal h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-style:italic;margin-bottom:1.5rem;color:var(--ink)}
+.m-field{margin-bottom:1.1rem}
+.m-field label{display:block;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--mist);font-family:'EB Garamond',serif;margin-bottom:0.35rem}
+.m-field input{width:100%;background:var(--parchment);border:1px solid var(--parchment-deep);color:var(--ink);font-family:'EB Garamond',serif;font-size:16px;padding:0.55rem 0.7rem;outline:none;transition:border-color 0.2s}
+.m-field input:focus{border-color:var(--sepia)}
+.swatches{display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.25rem}
+.swatch{width:26px;height:26px;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s}
+.swatch.sel{border-color:var(--sepia-light)}
+.m-btns{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem}
+.m-btn{font-family:'EB Garamond',serif;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;padding:0.55rem 1.4rem;cursor:pointer;border:1px solid var(--sepia);background:transparent;color:var(--sepia);transition:all 0.2s}
+.m-btn:hover{background:var(--sepia);color:var(--ink)}
+.m-btn.sec{border-color:var(--mist);color:var(--mist)}
+.m-btn.sec:hover{background:var(--mist);color:var(--ink)}
+.m-close{position:absolute;top:1rem;right:1.25rem;background:none;border:none;font-size:20px;color:var(--mist);cursor:pointer}
+.m-close:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<!-- PORTAL FLASH / PAGE TURN -->
+<div class="portal-flash" id="portal-flash">
+  <div class="page-turn-leaf" id="page-turn-leaf"></div>
+</div>
+
+<!-- ============================================================
+     VIEW: COVER
+     ============================================================ -->
+<div id="view-cover" class="view active">
+  <div class="forest-scene">
+    <div class="forest-sky"></div>
+
+    <!-- CITY SKYLINE + MOON BACKGROUND -->
+    <svg class="city-sky-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <!-- night sky gradient -->
+      <defs>
+        <radialGradient id="moonGlow" cx="72%" cy="18%" r="28%">
+          <stop offset="0%" stop-color="#d4c97a" stop-opacity="0.18"/>
+          <stop offset="40%" stop-color="#a89a50" stop-opacity="0.08"/>
+          <stop offset="100%" stop-color="#0a1220" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="moonSurface" cx="45%" cy="38%" r="50%">
+          <stop offset="0%" stop-color="#f0e8b0"/>
+          <stop offset="60%" stop-color="#d8cc80"/>
+          <stop offset="100%" stop-color="#b8a850"/>
+        </radialGradient>
+        <filter id="moonBlur">
+          <feGaussianBlur stdDeviation="1.2"/>
+        </filter>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="8" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- deep night sky -->
+      <rect width="1200" height="800" fill="#05080f"/>
+      <rect width="1200" height="800" fill="url(#moonGlow)"/>
+
+      <!-- stars -->
+      <g fill="#e8dfa0" opacity="0.7">
+        <circle cx="60" cy="40" r="1"/><circle cx="140" cy="25" r="1.2"/><circle cx="220" cy="60" r="0.8"/>
+        <circle cx="310" cy="20" r="1"/><circle cx="390" cy="50" r="1.3"/><circle cx="450" cy="30" r="0.9"/>
+        <circle cx="530" cy="15" r="1.1"/><circle cx="610" cy="45" r="0.8"/><circle cx="680" cy="22" r="1"/>
+        <circle cx="750" cy="55" r="1.2"/><circle cx="820" cy="18" r="0.9"/><circle cx="900" cy="38" r="1"/>
+        <circle cx="970" cy="28" r="1.3"/><circle cx="1050" cy="48" r="0.8"/><circle cx="1130" cy="20" r="1"/>
+        <circle cx="100" cy="90" r="0.7"/><circle cx="260" cy="100" r="1"/><circle cx="420" cy="80" r="0.8"/>
+        <circle cx="570" cy="95" r="1.1"/><circle cx="730" cy="85" r="0.9"/><circle cx="880" cy="105" r="0.7"/>
+        <circle cx="1020" cy="75" r="1"/><circle cx="1160" cy="90" r="1.2"/>
+        <circle cx="185" cy="140" r="0.8"/><circle cx="355" cy="125" r="1"/><circle cx="495" cy="150" r="0.7"/>
+        <circle cx="645" cy="130" r="1.1"/><circle cx="790" cy="145" r="0.9"/><circle cx="945" cy="120" r="0.8"/>
+        <circle cx="1090" cy="140" r="1"/>
+      </g>
+
+      <!-- moon halo -->
+      <circle cx="864" cy="145" r="90" fill="url(#moonGlow)" opacity="1"/>
+      <!-- moon body -->
+      <circle cx="864" cy="145" r="52" fill="url(#moonSurface)" filter="url(#moonBlur)"/>
+      <!-- moon craters -->
+      <circle cx="848" cy="132" r="7" fill="#c8b860" opacity="0.4"/>
+      <circle cx="878" cy="155" r="4.5" fill="#c0b058" opacity="0.35"/>
+      <circle cx="856" cy="162" r="3" fill="#c8b860" opacity="0.3"/>
+      <!-- moon rim highlight -->
+      <circle cx="852" cy="135" r="52" fill="none" stroke="#f4eca8" stroke-width="1.5" opacity="0.3"/>
+
+      <!-- moon light on clouds / atmosphere -->
+      <ellipse cx="864" cy="145" rx="180" ry="60" fill="#b8a840" opacity="0.04"/>
+
+      <!-- FAR city skyline — pushed up, heavily lit -->
+      <g>
+        <!-- building silhouettes — tall, clearly urban -->
+        <rect x="0" y="180" width="20" height="260" fill="#0e1828"/>
+        <rect x="22" y="155" width="28" height="285" fill="#0c1622"/>
+        <rect x="52" y="170" width="18" height="270" fill="#0e1828"/>
+        <rect x="72" y="138" width="24" height="302" fill="#0c1622"/>
+        <rect x="98" y="185" width="16" height="255" fill="#0e1828"/>
+        <rect x="116" y="148" width="32" height="292" fill="#0c1622"/>
+        <rect x="150" y="162" width="20" height="278" fill="#0e1828"/>
+        <rect x="172" y="118" width="26" height="322" fill="#0c1622"/>
+        <rect x="200" y="178" width="18" height="262" fill="#0e1828"/>
+        <rect x="220" y="130" width="34" height="310" fill="#0c1622"/>
+        <rect x="256" y="165" width="22" height="275" fill="#0e1828"/>
+        <rect x="280" y="142" width="28" height="298" fill="#0c1622"/>
+        <!-- antenna spires -->
+        <rect x="29" y="143" width="3" height="14" fill="#0a1218"/>
+        <rect x="178" y="104" width="3" height="16" fill="#0a1218"/>
+        <rect x="227" y="116" width="3" height="16" fill="#0a1218"/>
+        <!-- blinking antenna light -->
+        <circle cx="230" cy="114" r="2.5" fill="#ff4040" opacity="0.85">
+          <animate attributeName="opacity" values="0.85;0.1;0.85" dur="1.8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="180" cy="102" r="2" fill="#ff4040" opacity="0.7">
+          <animate attributeName="opacity" values="0.7;0.1;0.7" dur="2.2s" begin="0.9s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+
+      <!-- BRIGHT lit windows — dense, obvious city -->
+      <g opacity="1">
+        <!-- building at 22 -->
+        <rect x="27" y="162" width="5" height="4" fill="#f0d060"/><rect x="36" y="162" width="5" height="4" fill="#e8c840"/>
+        <rect x="27" y="172" width="5" height="4" fill="#f0d060"/><rect x="36" y="178" width="5" height="4" fill="#e0c030" opacity="0.8"/>
+        <rect x="27" y="184" width="5" height="4" fill="#e8c840"/><rect x="36" y="190" width="5" height="4" fill="#f0d060"/>
+        <rect x="27" y="196" width="5" height="4" fill="#dcc030" opacity="0.9"/>
+        <!-- building at 72 -->
+        <rect x="76" y="148" width="5" height="4" fill="#f0d860"/><rect x="85" y="148" width="5" height="4" fill="#e8cc40"/>
+        <rect x="76" y="160" width="5" height="4" fill="#f0d060"/><rect x="85" y="160" width="5" height="4" fill="#f0d860"/>
+        <rect x="76" y="172" width="5" height="4" fill="#e8c840"/><rect x="85" y="172" width="5" height="4" fill="#f0d060"/>
+        <rect x="76" y="184" width="5" height="4" fill="#f0d860"/><rect x="85" y="190" width="5" height="4" fill="#e8cc40"/>
+        <rect x="76" y="200" width="5" height="4" fill="#f0d060"/>
+        <!-- building at 116 -->
+        <rect x="120" y="156" width="6" height="4" fill="#f4dc60"/><rect x="130" y="156" width="6" height="4" fill="#f0d060"/>
+        <rect x="138" y="156" width="6" height="4" fill="#e8c840"/>
+        <rect x="120" y="168" width="6" height="4" fill="#f0d060"/><rect x="130" y="168" width="6" height="4" fill="#f4dc60"/>
+        <rect x="138" y="168" width="6" height="4" fill="#f0d060"/>
+        <rect x="120" y="180" width="6" height="4" fill="#e8c840"/><rect x="130" y="182" width="6" height="4" fill="#f0d060"/>
+        <rect x="120" y="194" width="6" height="4" fill="#f0d860"/><rect x="138" y="192" width="6" height="4" fill="#e8cc40"/>
+        <rect x="120" y="208" width="6" height="4" fill="#f0d060"/><rect x="130" y="208" width="6" height="4" fill="#f0d860"/>
+        <!-- blue-tinted office windows -->
+        <rect x="124" y="220" width="5" height="4" fill="#80b8f0" opacity="0.7"/>
+        <rect x="133" y="220" width="5" height="4" fill="#80b8f0" opacity="0.6"/>
+        <!-- building at 172 -->
+        <rect x="176" y="126" width="6" height="4" fill="#f4dc60"/><rect x="186" y="126" width="6" height="4" fill="#f0d060"/>
+        <rect x="176" y="138" width="6" height="4" fill="#f0d060"/><rect x="186" y="140" width="6" height="4" fill="#f4dc60"/>
+        <rect x="176" y="152" width="6" height="4" fill="#e8cc40"/><rect x="186" y="152" width="6" height="4" fill="#f0d060"/>
+        <rect x="176" y="164" width="6" height="4" fill="#f4dc60"/><rect x="186" y="166" width="6" height="4" fill="#e8c840"/>
+        <rect x="176" y="176" width="6" height="4" fill="#f0d060"/><rect x="186" y="178" width="6" height="4" fill="#f4dc60"/>
+        <rect x="176" y="190" width="6" height="4" fill="#e8c840"/><rect x="186" y="192" width="6" height="4" fill="#f0d060"/>
+        <!-- building at 220 -->
+        <rect x="224" y="140" width="7" height="4" fill="#f4dc60"/><rect x="236" y="140" width="7" height="4" fill="#f0d060"/>
+        <rect x="246" y="140" width="7" height="4" fill="#e8c840"/>
+        <rect x="224" y="154" width="7" height="4" fill="#f0d060"/><rect x="236" y="154" width="7" height="4" fill="#f4dc60"/>
+        <rect x="246" y="154" width="7" height="4" fill="#f0d060"/>
+        <rect x="224" y="168" width="7" height="4" fill="#e8cc40"/><rect x="236" y="168" width="7" height="4" fill="#f0d060"/>
+        <rect x="246" y="168" width="7" height="4" fill="#f4dc60"/>
+        <rect x="224" y="182" width="7" height="4" fill="#f0d860"/><rect x="236" y="182" width="7" height="4" fill="#e8c840"/>
+        <rect x="224" y="196" width="7" height="4" fill="#f0d060"/><rect x="246" y="196" width="7" height="4" fill="#f0d860"/>
+        <!-- blue office tint -->
+        <rect x="236" y="196" width="7" height="4" fill="#90c0f8" opacity="0.65"/>
+      </g>
+
+      <!-- right skyline cluster -->
+      <g>
+        <rect x="870" y="160" width="38" height="280" fill="#0c1622"/>
+        <rect x="910" y="130" width="52" height="310" fill="#0e1828"/>
+        <rect x="964" y="175" width="30" height="265" fill="#0c1622"/>
+        <rect x="996" y="120" width="46" height="320" fill="#0e1828"/>
+        <rect x="1044" y="150" width="35" height="290" fill="#0c1622"/>
+        <rect x="1081" y="162" width="58" height="278" fill="#0e1828"/>
+        <rect x="1141" y="135" width="40" height="305" fill="#0c1622"/>
+        <rect x="1183" y="168" width="38" height="272" fill="#0e1828"/>
+        <!-- antennas -->
+        <rect x="930" y="115" width="3" height="17" fill="#0a1218"/>
+        <rect x="1008" y="104" width="3" height="18" fill="#0a1218"/>
+        <rect x="1095" y="146" width="3" height="18" fill="#0a1218"/>
+        <!-- blinking lights -->
+        <circle cx="1011" cy="102" r="2.5" fill="#ff4040" opacity="0.8">
+          <animate attributeName="opacity" values="0.8;0.1;0.8" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="933" cy="113" r="2" fill="#ff4040" opacity="0.7">
+          <animate attributeName="opacity" values="0.7;0.1;0.7" dur="1.6s" begin="1.1s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      <!-- right lit windows -->
+      <g opacity="1">
+        <rect x="874" y="170" width="6" height="4" fill="#f4dc60"/><rect x="884" y="170" width="6" height="4" fill="#f0d060"/>
+        <rect x="874" y="182" width="6" height="4" fill="#e8c840"/><rect x="884" y="184" width="6" height="4" fill="#f0d060"/>
+        <rect x="874" y="196" width="6" height="4" fill="#f0d860"/><rect x="884" y="198" width="6" height="4" fill="#e8cc40"/>
+        <rect x="914" y="140" width="7" height="4" fill="#f4dc60"/><rect x="926" y="140" width="7" height="4" fill="#f0d060"/>
+        <rect x="938" y="140" width="7" height="4" fill="#e8c840"/>
+        <rect x="914" y="154" width="7" height="4" fill="#f0d060"/><rect x="926" y="156" width="7" height="4" fill="#f4dc60"/>
+        <rect x="914" y="168" width="7" height="4" fill="#e8cc40"/><rect x="938" y="168" width="7" height="4" fill="#f0d060"/>
+        <rect x="914" y="182" width="7" height="4" fill="#f0d860"/><rect x="926" y="184" width="7" height="4" fill="#e8c840"/>
+        <rect x="1000" y="130" width="8" height="4" fill="#f4dc60"/><rect x="1013" y="130" width="8" height="4" fill="#f0d060"/>
+        <rect x="1026" y="130" width="7" height="4" fill="#e8c840"/>
+        <rect x="1000" y="144" width="8" height="4" fill="#f0d060"/><rect x="1013" y="146" width="8" height="4" fill="#f4dc60"/>
+        <rect x="1026" y="144" width="7" height="4" fill="#f0d060"/>
+        <rect x="1000" y="158" width="8" height="4" fill="#e8cc40"/><rect x="1013" y="160" width="8" height="4" fill="#f0d060"/>
+        <rect x="1000" y="174" width="8" height="4" fill="#f0d860"/><rect x="1026" y="172" width="7" height="4" fill="#e8c840"/>
+        <rect x="1000" y="188" width="8" height="4" fill="#f0d060"/><rect x="1013" y="190" width="8" height="4" fill="#f0d860"/>
+        <rect x="1086" y="172" width="8" height="4" fill="#f4dc60"/><rect x="1098" y="172" width="8" height="4" fill="#f0d060"/>
+        <rect x="1110" y="172" width="7" height="4" fill="#e8c840"/>
+        <rect x="1086" y="186" width="8" height="4" fill="#f0d060"/><rect x="1098" y="188" width="8" height="4" fill="#f4dc60"/>
+        <rect x="1086" y="200" width="8" height="4" fill="#e8c840"/><rect x="1110" y="198" width="7" height="4" fill="#f0d060"/>
+        <!-- blue office tints -->
+        <rect x="1098" y="200" width="8" height="4" fill="#90c0f8" opacity="0.6"/>
+        <rect x="926" y="168" width="7" height="4" fill="#90c0f8" opacity="0.55"/>
+        <rect x="1013" y="174" width="8" height="4" fill="#80b8f0" opacity="0.6"/>
+      </g>
+
+      <!-- city ambient glow on horizon -->
+      <rect x="0" y="430" width="480" height="30" fill="#c8a030" opacity="0.04"/>
+      <rect x="720" y="430" width="480" height="30" fill="#c8a030" opacity="0.04"/>
+      <ellipse cx="180" cy="440" rx="280" ry="40" fill="#d0b040" opacity="0.05"/>
+      <ellipse cx="1020" cy="440" rx="280" ry="40" fill="#d0b040" opacity="0.05"/>
+
+      <!-- moonlight glow on top of skyline -->
+      <ellipse cx="864" cy="430" rx="500" ry="60" fill="#b8a840" opacity="0.04"/>
+
+      <!-- horizon atmospheric glow -->
+      <rect x="0" y="400" width="1200" height="60" fill="url(#moonGlow)" opacity="0.3"/>
+    </svg>
+
+    <!-- FOREST TREES (foreground, on top of skyline) -->
+    <svg class="trees-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- far background trees — frame the city -->
+      <ellipse cx="180" cy="220" rx="90" ry="130" fill="#0d1a0a" opacity="0.65"/>
+      <ellipse cx="160" cy="260" rx="72" ry="105" fill="#0a1408" opacity="0.75"/>
+      <rect x="172" y="365" width="16" height="200" fill="#080e06" opacity="0.9"/>
+
+      <ellipse cx="1020" cy="210" rx="88" ry="125" fill="#0d1a0a" opacity="0.65"/>
+      <ellipse cx="1042" cy="250" rx="72" ry="100" fill="#0a1408" opacity="0.75"/>
+      <rect x="1032" y="350" width="16" height="210" fill="#080e06" opacity="0.9"/>
+
+      <ellipse cx="360" cy="190" rx="80" ry="118" fill="#0e1e0b" opacity="0.6"/>
+      <ellipse cx="338" cy="235" rx="62" ry="95" fill="#0a1408" opacity="0.68"/>
+      <rect x="350" y="310" width="14" height="240" fill="#070d05" opacity="0.85"/>
+
+      <ellipse cx="840" cy="200" rx="82" ry="112" fill="#0e1e0b" opacity="0.6"/>
+      <ellipse cx="862" cy="245" rx="66" ry="92" fill="#0a1408" opacity="0.68"/>
+      <rect x="852" y="320" width="14" height="230" fill="#070d05" opacity="0.85"/>
+
+      <!-- mid-ground trees — denser, closer, crowd toward center -->
+      <ellipse cx="420" cy="310" rx="70" ry="110" fill="#091408" opacity="0.82"/>
+      <ellipse cx="400" cy="370" rx="58" ry="90" fill="#071006" opacity="0.88"/>
+      <rect x="412" y="458" width="18" height="342" fill="#050a04"/>
+
+      <ellipse cx="780" cy="305" rx="72" ry="112" fill="#091408" opacity="0.82"/>
+      <ellipse cx="802" cy="365" rx="58" ry="92" fill="#071006" opacity="0.88"/>
+      <rect x="790" y="455" width="18" height="345" fill="#050a04"/>
+
+      <!-- closer mid trees flanking -->
+      <ellipse cx="80" cy="300" rx="115" ry="170" fill="#091408" opacity="0.92"/>
+      <ellipse cx="55" cy="385" rx="90" ry="140" fill="#070f06" opacity="0.96"/>
+      <rect x="68" y="472" width="24" height="328" fill="#050a04"/>
+
+      <ellipse cx="1130" cy="295" rx="115" ry="165" fill="#091408" opacity="0.92"/>
+      <ellipse cx="1155" cy="378" rx="88" ry="138" fill="#070f06" opacity="0.96"/>
+      <rect x="1136" y="462" width="24" height="338" fill="#050a04"/>
+
+      <!-- FOREGROUND large trees — very close, frame the whole scene -->
+      <ellipse cx="0" cy="380" rx="145" ry="220" fill="#060e05" opacity="1"/>
+      <ellipse cx="-28" cy="480" rx="120" ry="185" fill="#050b04" opacity="1"/>
+      <rect x="-12" y="540" width="36" height="260" fill="#040804"/>
+      <!-- extra leaf cluster for depth -->
+      <ellipse cx="60" cy="420" rx="80" ry="120" fill="#071006" opacity="0.9"/>
+
+      <ellipse cx="1200" cy="370" rx="145" ry="215" fill="#060e05" opacity="1"/>
+      <ellipse cx="1228" cy="465" rx="120" ry="180" fill="#050b04" opacity="1"/>
+      <rect x="1178" y="530" width="36" height="270" fill="#040804"/>
+      <ellipse cx="1140" cy="412" rx="80" ry="118" fill="#071006" opacity="0.9"/>
+
+      <!-- second foreground tree layer — closer gaps between trees and treehouse -->
+      <ellipse cx="310" cy="420" rx="85" ry="135" fill="#060e05" opacity="0.95"/>
+      <ellipse cx="295" cy="500" rx="68" ry="108" fill="#050b04" opacity="1"/>
+      <rect x="302" y="565" width="20" height="235" fill="#040804"/>
+
+      <ellipse cx="890" cy="415" rx="88" ry="138" fill="#060e05" opacity="0.95"/>
+      <ellipse cx="908" cy="495" rx="70" ry="110" fill="#050b04" opacity="1"/>
+      <rect x="896" y="562" width="20" height="238" fill="#040804"/>
+
+      <!-- ground ferns and undergrowth — thicker band -->
+      <ellipse cx="600" cy="790" rx="600" ry="80" fill="#040804" opacity="0.9"/>
+      <ellipse cx="200" cy="770" rx="240" ry="55" fill="#050a04" opacity="0.95"/>
+      <ellipse cx="1000" cy="765" rx="220" ry="50" fill="#050a04" opacity="0.95"/>
+      <ellipse cx="500" cy="775" rx="180" ry="45" fill="#060e05" opacity="0.85"/>
+      <ellipse cx="750" cy="772" rx="160" ry="42" fill="#060e05" opacity="0.85"/>
+
+      <!-- canopy at very top — closes off the forest ceiling -->
+      <ellipse cx="600" cy="20" rx="380" ry="90" fill="#0c1a09" opacity="0.55"/>
+      <ellipse cx="460" cy="50" rx="230" ry="80" fill="#0a1608" opacity="0.6"/>
+      <ellipse cx="740" cy="45" rx="240" ry="75" fill="#0a1608" opacity="0.6"/>
+      <ellipse cx="600" cy="10" rx="200" ry="55" fill="#0e2009" opacity="0.45"/>
+      <ellipse cx="300" cy="30" rx="180" ry="60" fill="#0c1a09" opacity="0.5"/>
+      <ellipse cx="900" cy="35" rx="175" ry="58" fill="#0c1a09" opacity="0.5"/>
+
+      <!-- vines -->
+      <path d="M420 0 Q430 60 415 120 Q400 180 420 240" stroke="#0d1a08" stroke-width="3" fill="none" opacity="0.5"/>
+      <path d="M780 0 Q770 50 785 110 Q800 170 775 220" stroke="#0d1a08" stroke-width="2.5" fill="none" opacity="0.4"/>
+      <path d="M300 0 Q310 40 298 90 Q285 140 302 180" stroke="#0d1a08" stroke-width="2" fill="none" opacity="0.35"/>
+      <path d="M900 0 Q890 45 905 95 Q920 145 895 190" stroke="#0d1a08" stroke-width="2" fill="none" opacity="0.35"/>
+
+      <!-- ropes from treehouse -->
+      <line x1="480" y1="380" x2="340" y2="560" stroke="#3a2a10" stroke-width="2" opacity="0.6"/>
+      <line x1="720" y1="380" x2="860" y2="560" stroke="#3a2a10" stroke-width="2" opacity="0.6"/>
+    </svg>
+
+    <!-- TREEHOUSE -->
+    <div class="treehouse" id="treehouse">
+      <!-- smoke -->
+      <div class="smoke" id="smoke1" style="width:12px;height:12px;top:-20px;left:234px;animation-delay:0s;animation-duration:3.5s"></div>
+      <div class="smoke" id="smoke2" style="width:9px;height:9px;top:-12px;left:238px;animation-delay:1.2s;animation-duration:3.8s"></div>
+      <div class="smoke" id="smoke3" style="width:7px;height:7px;top:-8px;left:241px;animation-delay:2.4s;animation-duration:4.1s"></div>
+
+      <!-- roof — SVG so it always matches wall width -->
+      <div class="roof-wrap">
+        <div class="chimney"></div>
+        <svg class="roof-svg" viewBox="0 0 520 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="shingles" x="0" y="0" width="1" height="20" patternUnits="userSpaceOnUse">
+              <rect width="520" height="1.5" y="0" fill="rgba(0,0,0,0.18)"/>
+            </pattern>
+          </defs>
+          <!-- shadow layer under roof -->
+          <polygon points="260,0 542,158 -22,158" fill="rgba(0,0,0,0.3)"/>
+          <!-- main dark roof body -->
+          <polygon points="260,4 530,155 -10,155" fill="#2a1c0a"/>
+          <!-- face / lighter layer -->
+          <polygon points="260,18 510,153 10,153" fill="#3a2810"/>
+          <!-- shingle lines -->
+          <polygon points="260,4 530,155 -10,155" fill="url(#shingles)" opacity="0.8"/>
+          <!-- ridge cap -->
+          <ellipse cx="260" cy="6" rx="7" ry="5" fill="#4a3418"/>
+          <!-- subtle left-face highlight -->
+          <polygon points="260,4 10,153 -10,155" fill="rgba(0,0,0,0.12)"/>
+        </svg>
+        <!-- sign hanging from left side -->
+        <div class="roof-sign">
+          <div class="sign-rope-l"></div>
+          <div class="sign-rope-r"></div>
+          <span class="roof-sign-text">The City Magazine</span>
+        </div>
+      </div>
+
+      <!-- walls with windows and door -->
+      <div class="walls">
+        <div class="window lit">
+          <div class="w-pane"></div><div class="w-pane"></div>
+          <div class="w-pane"></div><div class="w-pane"></div>
+        </div>
+
+        <div class="door-wrap">
+          <div class="door-light" id="door-light"></div>
+          <div class="door" id="door" onclick="enterWorld()">
+            <div class="door-glow"></div>
+            <div class="door-panel-top"></div>
+            <div class="door-panel-bot"></div>
+            <div class="door-knob"></div>
+          </div>
+          <div class="door-step"></div>
+          <!-- DOOR SIGN: Come on in! -->
+          <div class="door-sign">
+            <span class="door-sign-text">Come on in!</span>
+          </div>
+        </div>
+
+        <div class="window lit">
+          <div class="w-pane"></div><div class="w-pane"></div>
+          <div class="w-pane"></div><div class="w-pane"></div>
+        </div>
+      </div>
+
+      <!-- platform -->
+      <div class="platform">
+        <div class="railing" id="railing"></div>
+        <div class="platform-planks" id="pf-planks"></div>
+      </div>
+
+      <!-- support posts -->
+      <div style="display:flex;justify-content:space-between;padding:0 5%;position:relative;z-index:1">
+        <div class="trunk-l" style="position:relative;bottom:auto;width:clamp(28px,3.5vw,56px);height:clamp(80px,10vw,160px);background:linear-gradient(to right,#1a0e06,#2e1e0a,#1a0e06);border-radius:4px"></div>
+        <div class="trunk-r" style="position:relative;bottom:auto;width:clamp(28px,3.5vw,56px);height:clamp(95px,12vw,190px);background:linear-gradient(to right,#1a0e06,#2e1e0a,#1a0e06);border-radius:4px"></div>
+      </div>
+    </div>
+
+    <!-- Bridge SVG -->
+    <svg class="bridge-wrap" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(380px,46vw);z-index:4;pointer-events:none" viewBox="0 0 180 260" xmlns="http://www.w3.org/2000/svg">
+      <!-- rope handrails -->
+      <path d="M20 30 Q90 20 160 30 L160 260 L140 260 Q90 240 40 260 L20 260 Z" fill="none"/>
+      <path d="M55 15 Q90 10 125 15 L125 260 L90 260 L55 260 Z" fill="none"/>
+      <!-- left rope -->
+      <path d="M40 20 Q90 12 140 20" stroke="#5a3e18" stroke-width="2.5" fill="none" opacity="0.8"/>
+      <!-- right rope -->
+      <path d="M40 20 L38 260" stroke="#4a3010" stroke-width="2" fill="none" opacity="0.7"/>
+      <path d="M140 20 L142 260" stroke="#4a3010" stroke-width="2" fill="none" opacity="0.7"/>
+      <!-- planks -->
+      <g fill="#3a2810" opacity="0.85">
+        <rect x="42" y="40" width="96" height="8" rx="1"/>
+        <rect x="43" y="57" width="94" height="8" rx="1"/>
+        <rect x="44" y="74" width="92" height="8" rx="1"/>
+        <rect x="45" y="91" width="90" height="8" rx="1"/>
+        <rect x="46" y="108" width="88" height="8" rx="1"/>
+        <rect x="47" y="125" width="86" height="8" rx="1"/>
+        <rect x="48" y="142" width="84" height="8" rx="1"/>
+        <rect x="50" y="159" width="80" height="8" rx="1"/>
+        <rect x="52" y="176" width="76" height="8" rx="1"/>
+        <rect x="55" y="193" width="70" height="8" rx="1"/>
+        <rect x="58" y="210" width="64" height="8" rx="1"/>
+        <rect x="62" y="227" width="56" height="8" rx="1"/>
+        <rect x="66" y="244" width="48" height="8" rx="1"/>
+      </g>
+      <!-- rope knot circles -->
+      <circle cx="38" cy="18" r="5" fill="#5a3e18" opacity="0.9"/>
+      <circle cx="142" cy="18" r="5" fill="#5a3e18" opacity="0.9"/>
+      <!-- vertical rope ties -->
+      <g stroke="#3a2810" stroke-width="1.2" opacity="0.6">
+        <line x1="40" y1="22" x2="42" y2="40"/>
+        <line x1="140" y1="22" x2="138" y2="40"/>
+        <line x1="40" y1="50" x2="43" y2="57"/>
+        <line x1="140" y1="50" x2="137" y2="57"/>
+        <line x1="40" y1="67" x2="44" y2="74"/>
+        <line x1="140" y1="67" x2="136" y2="74"/>
+        <line x1="40" y1="84" x2="45" y2="91"/>
+        <line x1="140" y1="84" x2="135" y2="91"/>
+        <line x1="40" y1="101" x2="46" y2="108"/>
+        <line x1="140" y1="101" x2="134" y2="108"/>
+      </g>
+    </svg>
+
+    <!-- ground fog -->
+    <div class="ground-mist"></div>
+    <div class="ground-mist-2"></div>
+
+    <!-- door prompt removed -->
+
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW: INNER SITE
+     ============================================================ -->
+<div id="view-inner" class="view">
+  <nav>
+    <span class="nav-title" onclick="showSub('archive')">The City Magazine</span>
+    <ul class="nav-links">
+      <li><a onclick="showSub('archive')" id="lnk-archive" class="active">Archive</a></li>
+      <li><a onclick="showSub('character')" id="lnk-character">Character</a></li>
+      <li><span class="nav-save" id="nav-save">Saved</span></li>
+    </ul>
+  </nav>
+
+  <!-- ARCHIVE -->
+  <div class="sub-view active" id="sub-archive">
+    <div class="archive-header">
+      <h2 class="archive-title">The Archive</h2>
+      <button class="btn-sm" onclick="openNewSerial()">+ New Serial</button>
+    </div>
+    <div class="serials-grid" id="serials-grid"></div>
+    <div class="ch-panel" id="ch-panel">
+      <div class="ch-panel-head">
+        <span id="ch-panel-title">Chapters</span>
+        <button class="btn-sm" onclick="addChapter()">+ Add Chapter</button>
+      </div>
+      <div id="ch-list"></div>
+    </div>
+  </div>
+
+  <!-- CHARACTER -->
+  <div class="sub-view" id="sub-character">
+    <div class="char-header">
+      <div class="char-identity">
+        <div class="char-avatar">G</div>
+        <div class="char-info">
+          <h2 class="char-name">Griffin Cool</h2>
+          <p class="char-handle">@griffincool · Earthland</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="char-body">
+
+      <!-- STATS ROW -->
+      <div class="char-section">
+        <p class="char-section-label">Stats</p>
+        <div class="char-stats-row" id="char-stats-row">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- LIBRARY -->
+      <div class="char-section">
+        <p class="char-section-label">Library</p>
+        <div class="char-library" id="char-library">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- ACHIEVEMENTS -->
+      <div class="char-section">
+        <p class="char-section-label">Achievements</p>
+        <div class="char-achievements" id="char-achievements">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="sub-view" id="sub-writer">
+    <div class="writer-bar">
+      <button class="w-back" onclick="showSub('archive')">← Archive</button>
+      <div class="w-div"></div>
+      <span class="w-label" id="w-label">Chapter</span>
+      <span class="w-wc" id="w-wc">0 words</span>
+      <div class="w-modes">
+        <button class="w-mode active" id="bw-write" onclick="setMode('write')">Write</button>
+        <button class="w-mode" id="bw-notes" onclick="setMode('notes')">Notes</button>
+        <button class="w-mode" id="bw-read" onclick="setMode('read')">Read</button>
+      </div>
+    </div>
+
+    <div id="write-mode">
+      <div class="w-title-area">
+        <p class="w-ch-num" id="w-ch-num">Chapter I</p>
+        <input class="w-title-in" id="w-title-in" placeholder="Chapter title..." autocomplete="off"/>
+      </div>
+      <div class="w-rule"><span class="w-orn">✦</span></div>
+      <div class="w-prose-wrap">
+        <textarea class="w-prose" id="w-prose" placeholder="Begin writing here. The page is yours."></textarea>
+      </div>
+    </div>
+
+    <div class="notes-wrap" id="notes-mode">
+      <div style="max-width:700px;margin:0 auto;padding:1.5rem 0 1rem">
+        <p class="n-label">Chapter Notes & Brainstorm</p>
+      </div>
+      <div style="margin-bottom:1.5rem">
+        <p class="n-label">Ideas</p>
+        <textarea class="n-in" id="n-ideas" placeholder="What are you trying to do in this chapter? Themes, images, questions..."></textarea>
+      </div>
+      <div>
+        <p class="n-label">Characters & World</p>
+        <textarea class="n-in" style="min-height:30vh" id="n-world" placeholder="Characters, world details, continuity notes..."></textarea>
+      </div>
+    </div>
+
+    <div id="read-mode">
+      <div class="r-wrap">
+        <p class="r-label" id="r-label"></p>
+        <h1 class="r-title" id="r-title"></h1>
+        <p class="r-by">by Griffin Cool</p>
+        <div class="r-rule"><span class="r-orn">✦</span></div>
+        <div class="r-body" id="r-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <button class="m-close" onclick="closeModal()">×</button>
+    <h3>New Serial</h3>
+    <div class="m-field">
+      <label>Title</label>
+      <input id="m-title" placeholder="The name of your work" autocomplete="off"/>
+    </div>
+    <div class="m-field">
+      <label>Subtitle</label>
+      <input id="m-sub" placeholder="A brief description or mood" autocomplete="off"/>
+    </div>
+    <div class="m-field">
+      <label>Cover color</label>
+      <div class="swatches" id="swatches">
+        <div class="swatch sel" style="background:#1A1208" data-c="#1A1208" onclick="pickColor(this)"></div>
+        <div class="swatch" style="background:#1A2D3A" data-c="#1A2D3A" onclick="pickColor(this)"></div>
+        <div class="swatch" style="background:#2D3A1A" data-c="#2D3A1A" onclick="pickColor(this)"></div>
+        <div class="swatch" style="background:#3A1A1A" data-c="#3A1A1A" onclick="pickColor(this)"></div>
+        <div class="swatch" style="background:#2D2340" data-c="#2D2340" onclick="pickColor(this)"></div>
+        <div class="swatch" style="background:#3A2D1A" data-c="#3A2D1A" onclick="pickColor(this)"></div>
+      </div>
+    </div>
+    <div class="m-btns">
+      <button class="m-btn sec" onclick="closeModal()">Cancel</button>
+      <button class="m-btn" onclick="createSerial()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let serials = JSON.parse(localStorage.getItem('cm_serials')||'[]');
+let activeS = null, activeCh = null, selColor = '#1A1208', saveTimer = null;
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX'];
+
+// ============================================================
+// COVER — DOOR INTERACTION
+// ============================================================
+function enterWorld(){
+  const door = document.getElementById('door');
+  const light = document.getElementById('door-light');
+  const flash = document.getElementById('portal-flash');
+  const leaf = document.getElementById('page-turn-leaf');
+  door.classList.add('open');
+  light.classList.add('show');
+  setTimeout(()=>{
+    // reset and trigger animation
+    leaf.style.animation='none';
+    leaf.offsetHeight; // reflow
+    leaf.style.animation='';
+    flash.classList.add('go');
+  },520);
+  setTimeout(()=>{
+    document.getElementById('view-cover').classList.remove('active');
+    document.getElementById('view-inner').classList.add('active');
+    document.getElementById('view-inner').scrollTop = 0;
+    flash.classList.remove('go');
+    renderArchive();
+  },1350);
+}
+
+// fireflies
+(function spawnFireflies(){
+  const scene = document.getElementById('view-cover');
+  const positions = [
+    {l:'17%',t:'25%',dl:0,dr:3.5,dx:'14px',dy:'-80px'},
+    {l:'23%',t:'38%',dl:1.3,dr:4.2,dx:'-10px',dy:'-100px'},
+    {l:'74%',t:'30%',dl:0.6,dr:5.1,dx:'12px',dy:'-90px'},
+    {l:'67%',t:'44%',dl:2.0,dr:4.6,dx:'-16px',dy:'-110px'},
+    {l:'31%',t:'58%',dl:0.2,dr:3.8,dx:'8px',dy:'-70px'},
+    {l:'63%',t:'52%',dl:1.7,dr:5.4,dx:'-8px',dy:'-95px'},
+    {l:'43%',t:'32%',dl:3.0,dr:4.0,dx:'10px',dy:'-85px'},
+    {l:'54%',t:'62%',dl:0.8,dr:4.9,dx:'-6px',dy:'-75px'},
+    {l:'13%',t:'50%',dl:2.3,dr:5.8,dx:'18px',dy:'-120px'},
+    {l:'81%',t:'57%',dl:1.0,dr:4.4,dx:'-14px',dy:'-88px'},
+    {l:'88%',t:'35%',dl:2.8,dr:3.9,dx:'10px',dy:'-105px'},
+    {l:'8%', t:'42%',dl:0.5,dr:6.0,dx:'20px',dy:'-95px'},
+  ];
+  positions.forEach(p=>{
+    const f = document.createElement('div');
+    f.className='firefly';
+    f.style.cssText=`left:${p.l};top:${p.t};--fdx:${p.dx};--fdy:${p.dy};animation-delay:${p.dl}s;animation-duration:${p.dr}s`;
+    scene.appendChild(f);
+  });
+})();
+
+// platform planks
+(function buildPlatform(){
+  const pl = document.getElementById('pf-planks');
+  if(!pl) return;
+  for(let i=0;i<10;i++){
+    const d = document.createElement('div');
+    d.className='p-plank';
+    pl.appendChild(d);
+  }
+  const rl = document.getElementById('railing');
+  if(rl){
+    for(let i=0;i<14;i++){
+      const p = document.createElement('div');
+      p.className='rail-post';
+      rl.appendChild(p);
+    }
+  }
+})();
+
+// ============================================================
+// INNER SITE
+// ============================================================
+function showSub(name){
+  document.querySelectorAll('.sub-view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  const sv = document.getElementById('sub-'+name);
+  if(sv) sv.classList.add('active');
+  const lnk = document.getElementById('lnk-'+name);
+  if(lnk) lnk.classList.add('active');
+  document.getElementById('view-inner').scrollTop = 0;
+  if(name==='archive') renderArchive();
+  if(name==='character') renderCharacter();
+}
+
+// ---- ARCHIVE ----
+function renderArchive(){
+  const grid = document.getElementById('serials-grid');
+  grid.innerHTML='';
+  serials.forEach((s,i)=>{
+    const card = document.createElement('div');
+    card.className='serial-card';
+    const ch = s.chapters.length;
+    card.innerHTML=`
+      <div class="s-cover" style="background:${s.color}">
+        <h3>${s.title}</h3>
+        <p>Griffin Cool</p>
+        <button class="s-delete" onclick="deleteSerial(event,${i})" title="Delete serial">×</button>
+      </div>
+      <div class="s-meta">
+        <h4>${s.title}</h4>
+        <p>${s.subtitle||'No subtitle'}</p>
+        <span class="s-badge">Ongoing · ${ch} ch</span>
+      </div>`;
+    card.onclick=()=>openSerial(i);
+    grid.appendChild(card);
+  });
+  const add = document.createElement('div');
+  add.className='serial-card add-card';
+  add.innerHTML=`<div class="s-cover"><span>+</span><p style="color:var(--mist);font-style:italic;font-size:13px">New serial</p></div><div class="s-meta"><h4>Add a work</h4></div>`;
+  add.onclick=openNewSerial;
+  grid.appendChild(add);
+}
+
+function renderCharacter(){
+  // compute stats
+  const totalSerials = serials.length;
+  const totalChapters = serials.reduce((n,s)=>n+s.chapters.length,0);
+  const totalWords = serials.reduce((n,s)=>n+s.chapters.reduce((m,ch)=>{
+    return m+(ch.prose?ch.prose.trim().split(/\s+/).filter(Boolean).length:0);
+  },0),0);
+
+  // stats row
+  const statsEl = document.getElementById('char-stats-row');
+  statsEl.innerHTML=[
+    {val:totalSerials,key:'Serials'},
+    {val:totalChapters,key:'Chapters'},
+    {val:totalWords.toLocaleString(),key:'Words Written'},
+  ].map(s=>`
+    <div class="char-stat">
+      <div class="char-stat-val">${s.val}</div>
+      <div class="char-stat-key">${s.key}</div>
+    </div>
+  `).join('');
+
+  // library
+  const libEl = document.getElementById('char-library');
+  if(!serials.length){
+    libEl.innerHTML='<p class="char-lib-empty">No works yet. Start a serial in the Archive.</p>';
+  } else {
+    libEl.innerHTML=serials.map((s,i)=>{
+      const ch=s.chapters.length;
+      const wc=s.chapters.reduce((n,c)=>n+(c.prose?c.prose.trim().split(/\s+/).filter(Boolean).length:0),0);
+      return `<div class="char-lib-row" onclick="showSub('archive');setTimeout(()=>openSerial(${i}),50)">
+        <div class="char-lib-dot" style="background:${s.color==='#1A1208'?'var(--sepia)':s.color}"></div>
+        <span class="char-lib-title">${s.title}</span>
+        <span class="char-lib-meta">${ch} ch · ${wc.toLocaleString()} words</span>
+      </div>`;
+    }).join('');
+  }
+
+  // achievements
+  const ACHIEVEMENTS = [
+    {icon:'✦',label:'First Word',earned:totalWords>0},
+    {icon:'📖',label:'First Chapter',earned:totalChapters>=1},
+    {icon:'📚',label:'Three Serials',earned:totalSerials>=3},
+    {icon:'🌿',label:'1,000 Words',earned:totalWords>=1000},
+    {icon:'🔥',label:'10,000 Words',earned:totalWords>=10000},
+    {icon:'🌍',label:'Five Chapters',earned:totalChapters>=5},
+  ];
+  const achEl=document.getElementById('char-achievements');
+  achEl.innerHTML=ACHIEVEMENTS.map(a=>`
+    <div class="char-ach${a.earned?' earned':''}">
+      <span class="char-ach-icon">${a.icon}</span>
+      <span class="char-ach-label">${a.label}</span>
+    </div>
+  `).join('');
+}
+
+function deleteSerial(e, idx){
+  e.stopPropagation();
+  const s = serials[idx];
+  if(!confirm(`Delete "${s.title}"? This cannot be undone.`)) return;
+  serials.splice(idx,1);
+  save();
+  if(activeS===idx){ activeS=null; document.getElementById('ch-panel').classList.remove('open'); }
+  else if(activeS!==null && activeS>idx){ activeS--; }
+  renderArchive();
+}
+
+function openSerial(idx){
+  activeS = idx;
+  const s = serials[idx];
+  const panel = document.getElementById('ch-panel');
+  const list = document.getElementById('ch-list');
+  document.getElementById('ch-panel-title').textContent = s.title+' — Chapters';
+  list.innerHTML='';
+  if(!s.chapters.length){
+    list.innerHTML='<p style="font-size:14px;color:var(--mist);font-style:italic;padding:1rem 0">No chapters yet.</p>';
+  } else {
+    s.chapters.forEach((ch,i)=>{
+      const wc = ch.prose ? ch.prose.trim().split(/\s+/).filter(Boolean).length : 0;
+      const row = document.createElement('div');
+      row.className='ch-row';
+      row.innerHTML=`<span class="ch-num">${ROMAN[i]||i+1}</span><span class="ch-name">${ch.title||'Untitled Chapter'}</span><span class="ch-wc">${wc} words</span><span class="ch-arr">→</span>`;
+      row.onclick=()=>openChapter(idx,i);
+      list.appendChild(row);
+    });
+  }
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function addChapter(){
+  if(activeS===null) return;
+  serials[activeS].chapters.push({title:'',prose:'',notes:{ideas:'',world:''}});
+  save();
+  openChapter(activeS, serials[activeS].chapters.length-1);
+}
+
+// ---- WRITER ----
+function openChapter(sIdx, cIdx){
+  activeS=sIdx; activeCh=cIdx;
+  const s=serials[sIdx], ch=s.chapters[cIdx];
+  document.getElementById('w-label').textContent=s.title;
+  document.getElementById('w-ch-num').textContent='Chapter '+(ROMAN[cIdx]||cIdx+1);
+  document.getElementById('w-title-in').value=ch.title||'';
+  document.getElementById('w-prose').value=ch.prose||'';
+  document.getElementById('n-ideas').value=ch.notes?.ideas||'';
+  document.getElementById('n-world').value=ch.notes?.world||'';
+  updateWC();
+  setMode('write');
+  showSub('writer');
+}
+
+function setMode(m){
+  document.getElementById('write-mode').style.display=m==='write'?'block':'none';
+  const nm=document.getElementById('notes-mode');
+  nm.style.display='none'; nm.classList.remove('show');
+  if(m==='notes'){nm.style.display='block';nm.classList.add('show');}
+  document.getElementById('read-mode').style.display=m==='read'?'block':'none';
+  ['write','notes','read'].forEach(x=>{
+    document.getElementById('bw-'+x).classList.toggle('active',x===m);
+  });
+  if(m==='read') renderRead();
+}
+
+function renderRead(){
+  if(activeS===null||activeCh===null) return;
+  const s=serials[activeS], ch=s.chapters[activeCh];
+  document.getElementById('r-label').textContent=s.title+' · Chapter '+(ROMAN[activeCh]||activeCh+1);
+  document.getElementById('r-title').textContent=ch.title||'Untitled';
+  const body=document.getElementById('r-body');
+  const prose=ch.prose||'';
+  body.innerHTML=prose.trim()?'':'<p class="r-empty">Nothing written yet.</p>';
+  if(prose.trim()) body.textContent=prose;
+}
+
+function updateWC(){
+  const p=document.getElementById('w-prose').value;
+  const wc=p.trim()===''?0:p.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('w-wc').textContent=wc.toLocaleString()+' words';
+}
+
+function scheduleAutoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    if(activeS===null||activeCh===null) return;
+    serials[activeS].chapters[activeCh].title=document.getElementById('w-title-in').value;
+    serials[activeS].chapters[activeCh].prose=document.getElementById('w-prose').value;
+    if(!serials[activeS].chapters[activeCh].notes) serials[activeS].chapters[activeCh].notes={};
+    serials[activeS].chapters[activeCh].notes.ideas=document.getElementById('n-ideas').value;
+    serials[activeS].chapters[activeCh].notes.world=document.getElementById('n-world').value;
+    save();
+    const s=document.getElementById('nav-save');
+    s.classList.add('on');
+    setTimeout(()=>s.classList.remove('on'),2000);
+  },800);
+}
+
+function save(){localStorage.setItem('cm_serials',JSON.stringify(serials))}
+
+// ---- MODAL ----
+function openNewSerial(){
+  document.getElementById('m-title').value='';
+  document.getElementById('m-sub').value='';
+  selColor='#1A1208';
+  document.querySelectorAll('.swatch').forEach(d=>d.classList.remove('sel'));
+  document.querySelector('.swatch').classList.add('sel');
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('m-title').focus(),80);
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function pickColor(el){
+  selColor=el.dataset.c;
+  document.querySelectorAll('.swatch').forEach(d=>d.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function createSerial(){
+  const t=document.getElementById('m-title').value.trim();
+  if(!t) return;
+  serials.push({title:t,subtitle:document.getElementById('m-sub').value.trim(),color:selColor,chapters:[]});
+  save();
+  closeModal();
+  renderArchive();
+  openSerial(serials.length-1);
+}
+
+// events
+document.getElementById('w-prose').addEventListener('input',()=>{updateWC();scheduleAutoSave()});
+document.getElementById('w-title-in').addEventListener('input',scheduleAutoSave);
+document.getElementById('n-ideas').addEventListener('input',scheduleAutoSave);
+document.getElementById('n-world').addEventListener('input',scheduleAutoSave);
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+document.getElementById('m-title').addEventListener('keydown',e=>{if(e.key==='Enter')createSerial()});
+</script>
+</body>
+</html>
